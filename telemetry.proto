@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package monitoring;
+
+message GraspCandidate {
+    message Pose {
+        float x = 1;
+        float y = 2;
+        float z = 3;
+        float qx = 4;
+        float qy = 5;
+        float qz = 6;
+        float qw = 7;
+    }
+
+    bool success = 1;
+    Pose pose = 2;
+    float score = 3;
+}
+
+message RobotConfig {
+    float q0 = 1;
+    float q1 = 2;
+    float q2 = 3;
+    float q3 = 4;
+    float q4 = 5;
+    float q5 = 6;
+}
+
+message PickPlan {
+    bool success = 1;
+    double start_time = 2;
+    double end_time = 3;
+    repeated RobotConfig control_points = 4;
+}
+
+message PickStatus {
+    enum Status {
+        SUCCESS = 0;
+        FAILURE = 1;
+        IN_PROGRESS = 2;
+    }
+
+    Status status = 1;
+    RobotConfig q = 2;
+}
