@@ -13,9 +13,11 @@ message GraspCandidate {
         float qw = 7;
     }
 
-    bool success = 1;
-    Pose pose = 2;
-    float score = 3;
+    string id = 1;
+    uint64 timestamp = 2;
+    bool success = 3;
+    Pose pose = 4;
+    float score = 5;
 }
 
 message RobotConfig {
@@ -28,10 +30,12 @@ message RobotConfig {
 }
 
 message PickPlan {
-    bool success = 1;
-    double start_time = 2;
-    double end_time = 3;
-    repeated RobotConfig control_points = 4;
+    string id = 1;
+    uint64 timestamp = 2;
+    bool success = 3;
+    double start_time = 4;
+    double end_time = 5;
+    repeated RobotConfig control_points = 6;
 }
 
 message PickStatus {
@@ -41,6 +45,8 @@ message PickStatus {
         IN_PROGRESS = 2;
     }
 
-    Status status = 1;
-    RobotConfig q = 2;
+    string id = 1;
+    uint64 timestamp = 2;
+    Status status = 3;
+    RobotConfig q = 4;
 }

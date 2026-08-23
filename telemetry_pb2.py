@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0ftelemetry.proto\x12\nmonitoring\"\xb8\x01\n\x0eGraspCandidate\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12-\n\x04pose\x18\x02 \x01(\x0b\x32\x1f.monitoring.GraspCandidate.Pose\x12\r\n\x05score\x18\x03 \x01(\x02\x1aW\n\x04Pose\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\x12\n\n\x02qx\x18\x04 \x01(\x02\x12\n\n\x02qy\x18\x05 \x01(\x02\x12\n\n\x02qz\x18\x06 \x01(\x02\x12\n\n\x02qw\x18\x07 \x01(\x02\"U\n\x0bRobotConfig\x12\n\n\x02q0\x18\x01 \x01(\x02\x12\n\n\x02q1\x18\x02 \x01(\x02\x12\n\n\x02q2\x18\x03 \x01(\x02\x12\n\n\x02q3\x18\x04 \x01(\x02\x12\n\n\x02q4\x18\x05 \x01(\x02\x12\n\n\x02q5\x18\x06 \x01(\x02\"r\n\x08PickPlan\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x12\n\nstart_time\x18\x02 \x01(\x01\x12\x10\n\x08\x65nd_time\x18\x03 \x01(\x01\x12/\n\x0e\x63ontrol_points\x18\x04 \x03(\x0b\x32\x17.monitoring.RobotConfig\"\x94\x01\n\nPickStatus\x12-\n\x06status\x18\x01 \x01(\x0e\x32\x1d.monitoring.PickStatus.Status\x12\"\n\x01q\x18\x02 \x01(\x0b\x32\x17.monitoring.RobotConfig\"3\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x0f\n\x0bIN_PROGRESS\x10\x02\x62\x06proto3'
+  serialized_pb=b'\n\x0ftelemetry.proto\x12\nmonitoring\"\xd7\x01\n\x0eGraspCandidate\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x04\x12\x0f\n\x07success\x18\x03 \x01(\x08\x12-\n\x04pose\x18\x04 \x01(\x0b\x32\x1f.monitoring.GraspCandidate.Pose\x12\r\n\x05score\x18\x05 \x01(\x02\x1aW\n\x04Pose\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\x12\n\n\x02qx\x18\x04 \x01(\x02\x12\n\n\x02qy\x18\x05 \x01(\x02\x12\n\n\x02qz\x18\x06 \x01(\x02\x12\n\n\x02qw\x18\x07 \x01(\x02\"U\n\x0bRobotConfig\x12\n\n\x02q0\x18\x01 \x01(\x02\x12\n\n\x02q1\x18\x02 \x01(\x02\x12\n\n\x02q2\x18\x03 \x01(\x02\x12\n\n\x02q3\x18\x04 \x01(\x02\x12\n\n\x02q4\x18\x05 \x01(\x02\x12\n\n\x02q5\x18\x06 \x01(\x02\"\x91\x01\n\x08PickPlan\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x04\x12\x0f\n\x07success\x18\x03 \x01(\x08\x12\x12\n\nstart_time\x18\x04 \x01(\x01\x12\x10\n\x08\x65nd_time\x18\x05 \x01(\x01\x12/\n\x0e\x63ontrol_points\x18\x06 \x03(\x0b\x32\x17.monitoring.RobotConfig\"\xb3\x01\n\nPickStatus\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x04\x12-\n\x06status\x18\x03 \x01(\x0e\x32\x1d.monitoring.PickStatus.Status\x12\"\n\x01q\x18\x04 \x01(\x0b\x32\x17.monitoring.RobotConfig\"3\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x0f\n\x0bIN_PROGRESS\x10\x02\x62\x06proto3'
 )
 
 
@@ -49,8 +49,8 @@ _PICKSTATUS_STATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=519,
-  serialized_end=570,
+  serialized_start=613,
+  serialized_end=664,
 )
 _sym_db.RegisterEnumDescriptor(_PICKSTATUS_STATUS)
 
@@ -124,8 +124,8 @@ _GRASPCANDIDATE_POSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=129,
-  serialized_end=216,
+  serialized_start=160,
+  serialized_end=247,
 )
 
 _GRASPCANDIDATE = _descriptor.Descriptor(
@@ -137,22 +137,36 @@ _GRASPCANDIDATE = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='success', full_name='monitoring.GraspCandidate.success', index=0,
-      number=1, type=8, cpp_type=7, label=1,
+      name='id', full_name='monitoring.GraspCandidate.id', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='timestamp', full_name='monitoring.GraspCandidate.timestamp', index=1,
+      number=2, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='success', full_name='monitoring.GraspCandidate.success', index=2,
+      number=3, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='pose', full_name='monitoring.GraspCandidate.pose', index=1,
-      number=2, type=11, cpp_type=10, label=1,
+      name='pose', full_name='monitoring.GraspCandidate.pose', index=3,
+      number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='score', full_name='monitoring.GraspCandidate.score', index=2,
-      number=3, type=2, cpp_type=6, label=1,
+      name='score', full_name='monitoring.GraspCandidate.score', index=4,
+      number=5, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -170,7 +184,7 @@ _GRASPCANDIDATE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=32,
-  serialized_end=216,
+  serialized_end=247,
 )
 
 
@@ -236,8 +250,8 @@ _ROBOTCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=218,
-  serialized_end=303,
+  serialized_start=249,
+  serialized_end=334,
 )
 
 
@@ -250,29 +264,43 @@ _PICKPLAN = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='success', full_name='monitoring.PickPlan.success', index=0,
-      number=1, type=8, cpp_type=7, label=1,
+      name='id', full_name='monitoring.PickPlan.id', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='timestamp', full_name='monitoring.PickPlan.timestamp', index=1,
+      number=2, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='success', full_name='monitoring.PickPlan.success', index=2,
+      number=3, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='start_time', full_name='monitoring.PickPlan.start_time', index=1,
-      number=2, type=1, cpp_type=5, label=1,
+      name='start_time', full_name='monitoring.PickPlan.start_time', index=3,
+      number=4, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='end_time', full_name='monitoring.PickPlan.end_time', index=2,
-      number=3, type=1, cpp_type=5, label=1,
+      name='end_time', full_name='monitoring.PickPlan.end_time', index=4,
+      number=5, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='control_points', full_name='monitoring.PickPlan.control_points', index=3,
-      number=4, type=11, cpp_type=10, label=3,
+      name='control_points', full_name='monitoring.PickPlan.control_points', index=5,
+      number=6, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -289,8 +317,8 @@ _PICKPLAN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=305,
-  serialized_end=419,
+  serialized_start=337,
+  serialized_end=482,
 )
 
 
@@ -303,15 +331,29 @@ _PICKSTATUS = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='status', full_name='monitoring.PickStatus.status', index=0,
-      number=1, type=14, cpp_type=8, label=1,
+      name='id', full_name='monitoring.PickStatus.id', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='timestamp', full_name='monitoring.PickStatus.timestamp', index=1,
+      number=2, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='q', full_name='monitoring.PickStatus.q', index=1,
-      number=2, type=11, cpp_type=10, label=1,
+      name='status', full_name='monitoring.PickStatus.status', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='q', full_name='monitoring.PickStatus.q', index=3,
+      number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -329,8 +371,8 @@ _PICKSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=422,
-  serialized_end=570,
+  serialized_start=485,
+  serialized_end=664,
 )
 
 _GRASPCANDIDATE_POSE.containing_type = _GRASPCANDIDATE
