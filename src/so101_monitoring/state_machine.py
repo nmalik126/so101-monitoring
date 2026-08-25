@@ -1,6 +1,4 @@
 from enum import Enum, auto
-# import socket
-# from .proto.telemetry import telemetry_pb2
 
 
 class State(Enum):
@@ -49,45 +47,3 @@ class Machine:
                 self.state = State.PLANNING_GRASP
             case _:
                 print(f"Event {event.name} invalid in state {self.state.name}")
-
-
-# machine = Machine()
-# print(machine)
-# machine.dispatch(Event.GRASP_PLAN_FAILURE)
-# print(machine)
-# machine.dispatch(Event.GRASP_PLAN_SUCCESS)
-
-# machine = Machine()
-# print(machine)
-# machine.dispatch(Event.GRASP_PLAN_SUCCESS)
-# print(machine)
-# machine.dispatch(Event.PICK_PLAN_SUCCESS)
-# print(machine)
-# machine.dispatch(Event.PICK_EXECUTE_SUCCESS)
-# print(machine)
-# machine.dispatch(Event.GRASP_PLAN_SUCCESS)
-# print(machine)
-# machine.dispatch(Event.PICK_PLAN_SUCCESS)
-# print(machine)
-# machine.dispatch(Event.PICK_EXECUTE_SUCCESS)
-# print(machine)
-
-# HOST = "127.0.0.1"
-# VISION_PORT = 65432
-# ROBOT_PORT = 65433
-
-# with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#     s.bind((HOST, VISION_PORT))
-#     s.listen()
-#     print("Waiting for vision component to connect...")
-#     conn, addr = s.accept()
-#     with conn:
-#         print(f"Connected by {addr}")
-#         while True:
-#             data = conn.recv(1024)
-#             if not data:
-#                 print("Exiting...")
-#                 break
-#             grasp = telemetry_pb2.GraspCandidate()
-#             grasp.ParseFromString(data)
-#             print(f"State machine received {data!r}, deserialized to {grasp}")
