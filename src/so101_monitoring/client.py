@@ -1,4 +1,4 @@
-from socket_manager_2 import Client
+from socket_manager import Client
 import time
 
 

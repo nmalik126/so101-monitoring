@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package monitoring;
+package so101_monitoring.telemetry;
 
 message GraspCandidate {
     message Pose {

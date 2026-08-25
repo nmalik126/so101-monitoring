@@ -1,4 +1,4 @@
-import telemetry_pb2
+from .proto.telemetry import telemetry_pb2
 import uuid
 import time
 import socket

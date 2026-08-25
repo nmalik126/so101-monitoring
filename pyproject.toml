@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "so101-monitoring"
+version = "0.1.0"
+dependencies = [
+    "protobuf>=7.35,<8",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

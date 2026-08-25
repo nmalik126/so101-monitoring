@@ -1,4 +1,4 @@
-from socket_manager_2 import Server
+from socket_manager import Server
 import time
 import threading
 
