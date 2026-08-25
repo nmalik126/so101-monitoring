@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0ftelemetry.proto\x12\nmonitoring\"\xd7\x01\n\x0eGraspCandidate\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x04\x12\x0f\n\x07success\x18\x03 \x01(\x08\x12-\n\x04pose\x18\x04 \x01(\x0b\x32\x1f.monitoring.GraspCandidate.Pose\x12\r\n\x05score\x18\x05 \x01(\x02\x1aW\n\x04Pose\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\x12\n\n\x02qx\x18\x04 \x01(\x02\x12\n\n\x02qy\x18\x05 \x01(\x02\x12\n\n\x02qz\x18\x06 \x01(\x02\x12\n\n\x02qw\x18\x07 \x01(\x02\"U\n\x0bRobotConfig\x12\n\n\x02q0\x18\x01 \x01(\x02\x12\n\n\x02q1\x18\x02 \x01(\x02\x12\n\n\x02q2\x18\x03 \x01(\x02\x12\n\n\x02q3\x18\x04 \x01(\x02\x12\n\n\x02q4\x18\x05 \x01(\x02\x12\n\n\x02q5\x18\x06 \x01(\x02\"\x91\x01\n\x08PickPlan\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x04\x12\x0f\n\x07success\x18\x03 \x01(\x08\x12\x12\n\nstart_time\x18\x04 \x01(\x01\x12\x10\n\x08\x65nd_time\x18\x05 \x01(\x01\x12/\n\x0e\x63ontrol_points\x18\x06 \x03(\x0b\x32\x17.monitoring.RobotConfig\"\xb3\x01\n\nPickStatus\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x04\x12-\n\x06status\x18\x03 \x01(\x0e\x32\x1d.monitoring.PickStatus.Status\x12\"\n\x01q\x18\x04 \x01(\x0b\x32\x17.monitoring.RobotConfig\"3\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x0f\n\x0bIN_PROGRESS\x10\x02\x62\x06proto3'
+  serialized_pb=b'\n\x0ftelemetry.proto\x12\nmonitoring\"\xd7\x01\n\x0eGraspCandidate\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x04\x12\x0f\n\x07success\x18\x03 \x01(\x08\x12-\n\x04pose\x18\x04 \x01(\x0b\x32\x1f.monitoring.GraspCandidate.Pose\x12\r\n\x05score\x18\x05 \x01(\x02\x1aW\n\x04Pose\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\t\n\x01z\x18\x03 \x01(\x02\x12\n\n\x02qx\x18\x04 \x01(\x02\x12\n\n\x02qy\x18\x05 \x01(\x02\x12\n\n\x02qz\x18\x06 \x01(\x02\x12\n\n\x02qw\x18\x07 \x01(\x02\"U\n\x0bRobotConfig\x12\n\n\x02q0\x18\x01 \x01(\x02\x12\n\n\x02q1\x18\x02 \x01(\x02\x12\n\n\x02q2\x18\x03 \x01(\x02\x12\n\n\x02q3\x18\x04 \x01(\x02\x12\n\n\x02q4\x18\x05 \x01(\x02\x12\n\n\x02q5\x18\x06 \x01(\x02\"\x91\x01\n\x08PickPlan\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x04\x12\x0f\n\x07success\x18\x03 \x01(\x08\x12\x12\n\nstart_time\x18\x04 \x01(\x01\x12\x10\n\x08\x65nd_time\x18\x05 \x01(\x01\x12/\n\x0e\x63ontrol_points\x18\x06 \x03(\x0b\x32\x17.monitoring.RobotConfig\"\xb3\x01\n\nPickStatus\x12\n\n\x02id\x18\x01 \x01(\t\x12\x11\n\ttimestamp\x18\x02 \x01(\x04\x12-\n\x06status\x18\x03 \x01(\x0e\x32\x1d.monitoring.PickStatus.Status\x12\"\n\x01q\x18\x04 \x01(\x0b\x32\x17.monitoring.RobotConfig\"3\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x0f\n\x0bIN_PROGRESS\x10\x02\"\xa3\x01\n\x08\x45nvelope\x12\x34\n\x0egraspCandidate\x18\x01 \x01(\x0b\x32\x1a.monitoring.GraspCandidateH\x00\x12(\n\x08pickPlan\x18\x02 \x01(\x0b\x32\x14.monitoring.PickPlanH\x00\x12,\n\npickStatus\x18\x03 \x01(\x0b\x32\x16.monitoring.PickStatusH\x00\x42\t\n\x07payloadb\x06proto3'
 )
 
 
@@ -375,16 +375,80 @@ _PICKSTATUS = _descriptor.Descriptor(
   serialized_end=664,
 )
 
+
+_ENVELOPE = _descriptor.Descriptor(
+  name='Envelope',
+  full_name='monitoring.Envelope',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='graspCandidate', full_name='monitoring.Envelope.graspCandidate', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='pickPlan', full_name='monitoring.Envelope.pickPlan', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='pickStatus', full_name='monitoring.Envelope.pickStatus', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='payload', full_name='monitoring.Envelope.payload',
+      index=0, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+  ],
+  serialized_start=667,
+  serialized_end=830,
+)
+
 _GRASPCANDIDATE_POSE.containing_type = _GRASPCANDIDATE
 _GRASPCANDIDATE.fields_by_name['pose'].message_type = _GRASPCANDIDATE_POSE
 _PICKPLAN.fields_by_name['control_points'].message_type = _ROBOTCONFIG
 _PICKSTATUS.fields_by_name['status'].enum_type = _PICKSTATUS_STATUS
 _PICKSTATUS.fields_by_name['q'].message_type = _ROBOTCONFIG
 _PICKSTATUS_STATUS.containing_type = _PICKSTATUS
+_ENVELOPE.fields_by_name['graspCandidate'].message_type = _GRASPCANDIDATE
+_ENVELOPE.fields_by_name['pickPlan'].message_type = _PICKPLAN
+_ENVELOPE.fields_by_name['pickStatus'].message_type = _PICKSTATUS
+_ENVELOPE.oneofs_by_name['payload'].fields.append(
+  _ENVELOPE.fields_by_name['graspCandidate'])
+_ENVELOPE.fields_by_name['graspCandidate'].containing_oneof = _ENVELOPE.oneofs_by_name['payload']
+_ENVELOPE.oneofs_by_name['payload'].fields.append(
+  _ENVELOPE.fields_by_name['pickPlan'])
+_ENVELOPE.fields_by_name['pickPlan'].containing_oneof = _ENVELOPE.oneofs_by_name['payload']
+_ENVELOPE.oneofs_by_name['payload'].fields.append(
+  _ENVELOPE.fields_by_name['pickStatus'])
+_ENVELOPE.fields_by_name['pickStatus'].containing_oneof = _ENVELOPE.oneofs_by_name['payload']
 DESCRIPTOR.message_types_by_name['GraspCandidate'] = _GRASPCANDIDATE
 DESCRIPTOR.message_types_by_name['RobotConfig'] = _ROBOTCONFIG
 DESCRIPTOR.message_types_by_name['PickPlan'] = _PICKPLAN
 DESCRIPTOR.message_types_by_name['PickStatus'] = _PICKSTATUS
+DESCRIPTOR.message_types_by_name['Envelope'] = _ENVELOPE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 GraspCandidate = _reflection.GeneratedProtocolMessageType('GraspCandidate', (_message.Message,), {
@@ -422,6 +486,13 @@ PickStatus = _reflection.GeneratedProtocolMessageType('PickStatus', (_message.Me
   # @@protoc_insertion_point(class_scope:monitoring.PickStatus)
   })
 _sym_db.RegisterMessage(PickStatus)
+
+Envelope = _reflection.GeneratedProtocolMessageType('Envelope', (_message.Message,), {
+  'DESCRIPTOR' : _ENVELOPE,
+  '__module__' : 'telemetry_pb2'
+  # @@protoc_insertion_point(class_scope:monitoring.Envelope)
+  })
+_sym_db.RegisterMessage(Envelope)
 
 
 # @@protoc_insertion_point(module_scope)

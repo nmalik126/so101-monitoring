@@ -72,10 +72,11 @@ class Machine:
 # print(machine)
 
 HOST = "127.0.0.1"
-PORT = 65432
+VISION_PORT = 65432
+ROBOT_PORT = 65433
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
+    s.bind((HOST, VISION_PORT))
     s.listen()
     print("Waiting for vision component to connect...")
     conn, addr = s.accept()

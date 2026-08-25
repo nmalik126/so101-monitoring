@@ -50,3 +50,11 @@ message PickStatus {
     Status status = 3;
     RobotConfig q = 4;
 }
+
+message Envelope {
+    oneof payload {
+        GraspCandidate graspCandidate = 1;
+        PickPlan pickPlan = 2;
+        PickStatus pickStatus = 3;
+    }
+}
