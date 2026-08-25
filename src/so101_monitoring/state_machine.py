@@ -1,6 +1,6 @@
 from enum import Enum, auto
-import socket
-from .proto.telemetry import telemetry_pb2
+# import socket
+# from .proto.telemetry import telemetry_pb2
 
 
 class State(Enum):
