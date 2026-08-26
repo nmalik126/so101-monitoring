@@ -1,4 +1,7 @@
 from enum import Enum, auto
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class State(Enum):
@@ -28,22 +31,22 @@ class Machine:
     def dispatch(self, event: Event):
         match (self.state, event):
             case (State.PLANNING_GRASP, Event.GRASP_PLAN_FAILURE):
-                print("Grasp plan failure, going home.")
+                logger.info("Grasp plan failure, going home.")
                 self.state = State.GO_HOME
             case (State.PLANNING_GRASP, Event.GRASP_PLAN_SUCCESS):
-                print("Grasp plan success, planning pick...")
+                logger.info("Grasp plan success, planning pick...")
                 self.state = State.PLANNING_PICK
             case (State.PLANNING_PICK, Event.PICK_PLAN_FAILURE):
-                print("Pick plan failure, going home.")
+                logger.info("Pick plan failure, going home.")
                 self.state = State.GO_HOME
             case (State.PLANNING_PICK, Event.PICK_PLAN_SUCCESS):
-                print("Pick plan success, executing pick...")
+                logger.info("Pick plan success, executing pick...")
                 self.state = State.EXECUTING_PICK
             case (State.EXECUTING_PICK, Event.PICK_EXECUTE_FAILURE):
-                print("Pick execute failure, going home.")
+                logger.info("Pick execute failure, going home.")
                 self.state = State.GO_HOME
             case (State.EXECUTING_PICK, Event.PICK_EXECUTE_SUCCESS):
-                print("Pick execute success, planning next grasp...")
+                logger.info("Pick execute success, planning next grasp...")
                 self.state = State.PLANNING_GRASP
             case _:
-                print(f"Event {event.name} invalid in state {self.state.name}")
+                logger.warning(f"Event {event.name} invalid in state {self.state.name}")

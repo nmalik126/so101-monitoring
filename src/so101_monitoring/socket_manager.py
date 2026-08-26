@@ -1,7 +1,10 @@
 import socket
 import struct
 import threading
-from collections.abc import Callable
+from typing import Any, Callable
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class FramedSocket:
@@ -52,9 +55,10 @@ class FramedSocket:
 
 class Server:
 
-    def __init__(self, host, port):
+    def __init__(self, host: str, port: int, callback: Callable[[bytes], Any]):
         self._host = host
         self._port = port
+        self._callback = callback
         self._client_conn = None
         self._done = threading.Event()
 
@@ -63,12 +67,12 @@ class Server:
             listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             listener.bind((self._host, self._port))
             listener.listen()
-            print(f"Server listening on {self._host}:{self._port}")
+            logger.info(f"Server listening on {self._host}:{self._port}")
             listener.settimeout(1.0)
             while not self._done.is_set():
                 try:
                     sock, addr = listener.accept()
-                    print(f"Connected by {addr}")
+                    logger.info(f"Connected by {addr}")
                     self._client_conn = FramedSocket(sock)
                     rx_thread = threading.Thread(target=self.receive_loop)
                     rx_thread.start()
@@ -81,9 +85,10 @@ class Server:
                 msg = self._client_conn.recv()
                 if not msg:
                     break
-                print(f"Server got msg {msg}")
+                logger.debug(f"Server got msg {msg}")
+                self._callback(msg)
         except (ConnectionError, ValueError) as e:
-            print(e)
+            logger.exception("server receive loop error")
         finally:
             self._client_conn.close()
 
@@ -96,20 +101,21 @@ class Server:
         self._done.set()
         if self._client_conn:
             self._client_conn.close()
-        print("Server stopped")
+        logger.info("Server stopped")
 
 
 class Client:
 
-    def __init__(self, host, port):
+    def __init__(self, host: str, port: int, callback: Callable[[bytes], Any]):
         self._host = host
         self._port = port
+        self._callback = callback
         self._client_conn = None
 
     def start(self) -> None:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((self._host, self._port))
-        print("Client connected")
+        logger.info("Client connected")
         self._client_conn = FramedSocket(sock)
         rx_thread = threading.Thread(target=self.receive_loop)
         rx_thread.start()
@@ -120,9 +126,10 @@ class Client:
                 msg = self._client_conn.recv()
                 if not msg:
                     break
-                print(f"Client got msg: {msg}")
+                logger.debug(f"Client got msg: {msg}")
+                self._callback(msg)
         except (ConnectionError, ValueError) as e:
-            print(e)
+            logger.exception("client receive loop error")
         finally:
             self._client_conn.close()
 
@@ -134,4 +141,4 @@ class Client:
     def stop(self):
         if self._client_conn:
             self._client_conn.close()
-        print("Client stopped")
+        logger.info("Client stopped")
