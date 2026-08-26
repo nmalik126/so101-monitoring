@@ -1,4 +1,4 @@
-from socket_manager import Client
+from so101_monitoring.socket_manager import Client
 import time
 
 

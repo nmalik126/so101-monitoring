@@ -21,14 +21,29 @@ class Event(Enum):
 
 
 class Machine:
+    """Finite State Machine (FSM) for pick-and-place pipeline.
+
+    Attributes:
+        state (State): Current FSM state.
+    """
 
     def __init__(self):
+        """Initializes FSM state to PLANNING_GRASP (nominal default)."""
         self.state: State = State.PLANNING_GRASP
 
     def __str__(self):
+        """Returns current FSM state in human-readable format."""
         return f"Current State: {self.state.name}"
 
     def dispatch(self, event: Event):
+        """Handles new event.
+
+        If the FSM event is valid for the current state, the state is transitioned.
+        Otherwise, a warning is logged.
+
+        Args:
+            event: The event to dispatch to the FSM.
+        """
         match (self.state, event):
             case (State.PLANNING_GRASP, Event.GRASP_PLAN_FAILURE):
                 logger.info("Grasp plan failure, going home.")

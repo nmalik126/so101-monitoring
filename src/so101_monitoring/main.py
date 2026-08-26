@@ -1,5 +1,5 @@
 from so101_monitoring.logging_config import configure_logging
-from so101_monitoring.state_machine import Machine, State, Event
+from so101_monitoring.state_machine import Machine, Event
 
 
 def main():
