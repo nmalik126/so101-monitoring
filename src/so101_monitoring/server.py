@@ -6,7 +6,12 @@ from so101_monitoring.socket_manager import Server
 HOST = "127.0.0.1"
 PORT = 65432
 
-server = Server(HOST, PORT)
+
+def handle_msg(msg: bytes) -> None:
+    print(f"got message: {msg!r}")
+
+
+server = Server(HOST, PORT, handle_msg)
 
 # server.serve_forever()
 

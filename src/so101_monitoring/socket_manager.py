@@ -127,7 +127,7 @@ class Server:
         self._host = host
         self._port = port
         self._callback = callback
-        self._client_conn = None
+        self._client_conn: FramedSocket | None = None
         self._done = threading.Event()
 
     def serve_forever(self) -> None:
@@ -160,15 +160,18 @@ class Server:
         """
         try:
             while True:
+                if not self._client_conn:
+                    raise ConnectionError("Receive loop started before client connection established")
                 msg = self._client_conn.recv()
                 if not msg:
                     break
-                logger.debug(f"Server got msg {msg}")
+                logger.debug(f"Server got msg {msg!r}")
                 self._callback(msg)
         except (ConnectionError, ValueError):
             logger.exception("server receive loop error")
         finally:
-            self._client_conn.close()
+            if self._client_conn:
+                self._client_conn.close()
 
     def send(self, msg: bytes) -> None:
         """Sends packet to client over socket.
@@ -212,7 +215,7 @@ class Client:
         self._host = host
         self._port = port
         self._callback = callback
-        self._client_conn = None
+        self._client_conn: FramedSocket | None = None
 
     def start(self) -> None:
         """Opens socket client.
@@ -233,15 +236,18 @@ class Client:
         """
         try:
             while True:
+                if not self._client_conn:
+                    raise ConnectionError("Receive loop started before client connection established")
                 msg = self._client_conn.recv()
                 if not msg:
                     break
-                logger.debug(f"Client got msg: {msg}")
+                logger.debug(f"Client got msg: {msg!r}")
                 self._callback(msg)
         except (ConnectionError, ValueError):
             logger.exception("client receive loop error")
         finally:
-            self._client_conn.close()
+            if self._client_conn:
+                self._client_conn.close()
 
     def send(self, msg: bytes) -> None:
         """Sends packet to server over socket.

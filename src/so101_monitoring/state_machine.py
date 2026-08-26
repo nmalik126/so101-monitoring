@@ -27,7 +27,7 @@ class Machine:
         state (State): Current FSM state.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initializes FSM state to PLANNING_GRASP (nominal default)."""
         self.state: State = State.PLANNING_GRASP
 
@@ -35,7 +35,7 @@ class Machine:
         """Returns current FSM state in human-readable format."""
         return f"Current State: {self.state.name}"
 
-    def dispatch(self, event: Event):
+    def dispatch(self, event: Event) -> None:
         """Handles new event.
 
         If the FSM event is valid for the current state, the state is transitioned.
