@@ -5,9 +5,7 @@ from so101_monitoring.socket_manager import Client
 from so101_monitoring.logging_config import configure_logging
 import os
 from dotenv import load_dotenv
-from so101_monitoring.parser import Parser
 from queue import Queue
-from so101_monitoring.state_machine import Event
 import threading
 
 
@@ -48,20 +46,25 @@ def main() -> None:
         print("could not load address env vars")
         return
 
+    cmd_queue: Queue[bytes] = Queue()
     telem_queue: Queue[bytes] = Queue()
-    event_queue: Queue[Event] = Queue()
-    done = threading.Event()
-    parser = Parser(telem_queue, event_queue, done)
 
-    client = Client(HOST, int(PORT), parser.handle_message)
-    client.start()
+    done = threading.Event()
+
+    client = Client(HOST, int(PORT), cmd_queue, telem_queue, done)
+    client_thread = threading.Thread(target=client.run_forever)
+
+    client_thread.start()
+
     for _ in range(1):
         grasp = gen_grasp(True)
         binary_data = grasp.SerializeToString()
         print(f"sending message of size {len(binary_data)}")
-        client.send(binary_data)
+        telem_queue.put(binary_data)
         time.sleep(1)
-    client.stop()
+
+    done.set()
+    client_thread.join()
 
 
 if __name__ == "__main__":

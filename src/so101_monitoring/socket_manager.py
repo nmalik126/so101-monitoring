@@ -1,9 +1,9 @@
 import socket
 import struct
 import threading
-from typing import Any, Callable
 import logging
 import queue
+from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,6 @@ class FramedSocket:
 
         Raises:
             ConnectionError: If peer closed connection in the middle of sending a payload.
-            ValueError: If payload is longer than expected from the length header.
         """
         data = bytearray()
         while len(data) < num_bytes:
@@ -108,17 +107,104 @@ class FramedSocket:
             self._sock.close()
 
 
-class Server:
-    """Creates and manages a bi-directional INET TCP socket server.
+class Connection(ABC):
 
-    Attributes:
-        _host (str): IPv4 address.
-        _port (int): Port number.
-        _cmd_queue (queue.Queue[bytes]): Command queue.
-        _telem_queue (queue.Queue[bytes]): Telemetry queue.
-        _client_conn (FramedSocket | None): Client socket connection to send to and read from.
-        _done (threading.Event): Event representing closure of server.
-    """
+    def __init__(
+            self,
+            rx_queue: queue.Queue[bytes],
+            tx_queue: queue.Queue[bytes],
+            done: threading.Event
+            ) -> None:
+        self._rx_queue = rx_queue
+        self._tx_queue = tx_queue
+        self._done = done
+        self._threads: list[threading.Thread] = []
+
+    @abstractmethod
+    def run_forever(self) -> None:
+        """Infinite loop to run until `_done` event is set"""
+        pass
+
+    def _receive_loop(self, conn: FramedSocket) -> None:
+        """Infinitely listens for new packets on client socket connection.
+
+        Args:
+            conn: Socket to read from.
+
+        On packet reception, forwards packet to user-specified callback function.
+        """
+        try:
+            while not self._done.is_set():
+                msg = conn.recv()
+                if msg is None:
+                    break
+                logger.debug(f"got msg {msg!r}")
+                self._rx_queue.put(msg)
+        except (OSError, ConnectionError) as e:
+            logger.info(f"receive loop ended: {e}")
+        finally:
+            conn.close()
+
+    def _send_loop(self, conn: FramedSocket) -> None:
+        """Infinitely sends packets from command queue to client over socket.
+
+        Args:
+            conn: Socket to send to.
+
+        Raises:
+            ConnectionError: If method is called before client has connected.
+        """
+        try:
+            while not self._done.is_set() and not conn.closed.is_set():
+                try:
+                    msg = self._tx_queue.get(timeout=1.0)
+                    conn.send(msg)
+                except queue.Empty:
+                    continue
+                except ValueError as e:
+                    logger.warning(f"send loop warning: {e}")
+                    continue
+        except OSError as e:
+            logger.info(f"send loop ended: {e}")
+        finally:
+            conn.close()
+
+    def _spawn(self, conn: FramedSocket, name: str):
+        """Creates and starts the Rx and Tx threads.
+
+        Args:
+            conn: The socket connection object.
+            name: Name of spawner (e.g. server or client).
+        """
+        self._threads = [
+            threading.Thread(
+                target=self._receive_loop,
+                args=(conn,),
+                name=f"{name}-rx"
+            ),
+            threading.Thread(
+                target=self._send_loop,
+                args=(conn,),
+                name=f"{name}-tx"
+            )
+        ]
+        for t in self._threads:
+            t.start()
+
+    def _teardown(self, conn: FramedSocket):
+        """Closes the connection object and joins the Rx and Tx threads.
+
+        Args:
+            conn: The connection object associated with the Rx and Tx threads.
+        """
+        conn.close()
+        for t in self._threads:
+            t.join(2.0)
+            if t.is_alive():
+                logger.error(f"{t.name} did not exit after close()")
+
+
+class Server(Connection):
 
     def __init__(
             self,
@@ -128,28 +214,19 @@ class Server:
             telem_queue: queue.Queue[bytes],
             done: threading.Event
             ) -> None:
-        """Initializes socket address and queues to read/write.
-
-        Args:
-            host: IPv4 address.
-            port: Port number.
-            cmd_queue: Command queue.
-            telem_queue: Telemetry queue.
-            done: Event representing closure of server.
-        """
+        super().__init__(
+            rx_queue=telem_queue,
+            tx_queue=cmd_queue,
+            done=done)
         self._host = host
         self._port = port
-        self._cmd_queue = cmd_queue
-        self._telem_queue = telem_queue
-        self._done = done
         self._conn: FramedSocket | None = None
 
-    def serve_forever(self) -> None:
+    def run_forever(self) -> None:
         """Opens socket server and accepts client connections.
 
         Currently supports only one client connection at a time.
         Continuously listens for the next client connections.
-        When connection accepted, starts a new listener thread.
         """
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
             listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -179,123 +256,38 @@ class Server:
         old_conn = self._conn
         self._conn = new_conn
         if old_conn is not None:
-            old_conn.close()
+            self._teardown(old_conn)
         if new_conn is not None:
-            threading.Thread(target=self._receive_loop, args=(new_conn,)).start()
-            threading.Thread(target=self._send_loop, args=(new_conn,)).start()
-
-    def _receive_loop(self, conn: FramedSocket) -> None:
-        """Infinitely listens for new packets on client socket connection.
-
-        Args:
-            conn: Socket to read from.
-
-        On packet reception, forwards packet to user-specified callback function.
-        """
-        try:
-            while not self._done.is_set():
-                msg = conn.recv()
-                if msg is None:
-                    break
-                logger.debug(f"Server got msg {msg!r}")
-                self._telem_queue.put(msg)
-        except (OSError, ValueError) as e:
-            logger.info(f"receive loop ended: {e}")
-        finally:
-            conn.close()
-
-    def _send_loop(self, conn: FramedSocket) -> None:
-        """Infinitely sends packets from command queue to client over socket.
-
-        Args:
-            conn: Socket to send to.
-
-        Raises:
-            ConnectionError: If method is called before client has connected.
-        """
-        try:
-            while not self._done.is_set() and not conn.closed.is_set():
-                try:
-                    msg = self._cmd_queue.get(timeout=1.0)
-                except queue.Empty:
-                    continue
-                conn.send(msg)
-        except OSError as e:
-            logger.info(f"send loop ended: {e}")
-        finally:
-            conn.close()
+            self._spawn(new_conn, "server")
 
 
-class Client:
-    """Creates and manages a bi-directional INET TCP socket client.
+class Client(Connection):
 
-    Attributes:
-        _host (str): IPv4 address.
-        _port (int): Port number.
-        _callback (Callable[[bytes], Any]): Callback to invoke on message reception.
-        _client_conn (FramedSocket | None): Client socket connection to send to and read from.
-    """
-
-    def __init__(self, host: str, port: int, callback: Callable[[bytes], Any]):
-        """Initializes socket address and callback.
-
-        Args:
-            host: IPv4 address.
-            port: Port number.
-            callback: Callback to invoke on message reception.
-        """
+    def __init__(
+            self,
+            host: str,
+            port: int,
+            cmd_queue: queue.Queue[bytes],
+            telem_queue: queue.Queue[bytes],
+            done: threading.Event
+            ) -> None:
+        super().__init__(
+            rx_queue=cmd_queue,
+            tx_queue=telem_queue,
+            done=done)
         self._host = host
         self._port = port
-        self._callback = callback
-        self._client_conn: FramedSocket | None = None
 
-    def start(self) -> None:
-        """Opens socket client.
-
-        When connection accepted, starts a new listener thread.
-        """
+    def run_forever(self):
+        """Opens a client connection."""
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((self._host, self._port))
         logger.info("Client connected")
-        self._client_conn = FramedSocket(sock)
-        rx_thread = threading.Thread(target=self.receive_loop)
-        rx_thread.start()
-
-    def receive_loop(self) -> None:
-        """Infinitely listens for new packets on client socket connection.
-
-        On packet reception, forwards packet to user-specified callback function.
-        """
+        conn = FramedSocket(sock)
+        self._spawn(conn, "client")
         try:
-            while True:
-                if not self._client_conn:
-                    raise ConnectionError("Receive loop started before client connection established")
-                msg = self._client_conn.recv()
-                if msg is None:
-                    break
-                logger.debug(f"Client got msg: {msg!r}")
-                self._callback(msg)
-        except (ConnectionError, ValueError):
-            logger.exception("client receive loop error")
+            while not self._done.is_set():
+                if conn.closed.wait(timeout=1.0):
+                    logger.warning("connection to server lost")
         finally:
-            if self._client_conn:
-                self._client_conn.close()
-
-    def send(self, msg: bytes) -> None:
-        """Sends packet to server over socket.
-
-        Args:
-            msg: Binary payload to send.
-
-        Raises:
-            ConnectionError: If method is called before client has connected.
-        """
-        if not self._client_conn:
-            raise ConnectionError("attempted send before peer connected")
-        self._client_conn.send(msg)
-
-    def stop(self):
-        """Closes the client socket."""
-        if self._client_conn:
-            self._client_conn.close()
-        logger.info("Client stopped")
+            self._teardown(conn)

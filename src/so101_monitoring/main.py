@@ -30,8 +30,8 @@ def main() -> None:
 
     vision_server = Server(HOST, int(VISION_PORT), vision_cmd_queue, telem_queue, done)
     robot_server = Server(HOST, int(ROBOT_PORT), robot_cmd_queue, telem_queue, done)
-    vision_server_thread = threading.Thread(target=vision_server.serve_forever)
-    robot_server_thread = threading.Thread(target=robot_server.serve_forever)
+    vision_server_thread = threading.Thread(target=vision_server.run_forever)
+    robot_server_thread = threading.Thread(target=robot_server.run_forever)
 
     parser = Parser(telem_queue, event_queue, done)
     parser_thread = threading.Thread(target=parser.handle_telem_loop)
