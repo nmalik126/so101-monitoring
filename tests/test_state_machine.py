@@ -6,10 +6,11 @@ import threading
 
 @pytest.fixture
 def machine():
-    cmd_queue: queue.Queue[bytes] = queue.Queue()
+    vision_cmd_queue: queue.Queue[bytes] = queue.Queue()
+    robot_cmd_queue: queue.Queue[bytes] = queue.Queue()
     event_queue: queue.Queue[Event] = queue.Queue()
     done = threading.Event()
-    return Machine(cmd_queue, event_queue, done)
+    return Machine(vision_cmd_queue, robot_cmd_queue, event_queue, done)
 
 
 def test_initial_state(machine):

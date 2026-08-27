@@ -21,21 +21,22 @@ def main() -> None:
         print("could not load address env vars")
         return
 
-    cmd_queue: Queue[bytes] = Queue()
+    vision_cmd_queue: Queue[bytes] = Queue()
+    robot_cmd_queue: Queue[bytes] = Queue()
     telem_queue: Queue[bytes] = Queue()
     event_queue: Queue[Event] = Queue()
 
     done = threading.Event()
 
-    vision_server = Server(HOST, int(VISION_PORT), cmd_queue, telem_queue, done)
-    robot_server = Server(HOST, int(ROBOT_PORT), cmd_queue, telem_queue, done)
+    vision_server = Server(HOST, int(VISION_PORT), vision_cmd_queue, telem_queue, done)
+    robot_server = Server(HOST, int(ROBOT_PORT), robot_cmd_queue, telem_queue, done)
     vision_server_thread = threading.Thread(target=vision_server.serve_forever)
     robot_server_thread = threading.Thread(target=robot_server.serve_forever)
 
     parser = Parser(telem_queue, event_queue, done)
     parser_thread = threading.Thread(target=parser.handle_telem_loop)
 
-    machine = Machine(cmd_queue, event_queue, done)
+    machine = Machine(vision_cmd_queue, robot_cmd_queue, event_queue, done)
     machine_thread = threading.Thread(target=machine.dispatch_loop)
 
     threads = [

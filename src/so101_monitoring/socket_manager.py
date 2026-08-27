@@ -29,6 +29,7 @@ class FramedSocket:
         self._sock = sock
         self._max_payload: int = 0xFFFF
         self._header = struct.Struct("!H")
+        self.closed = threading.Event()
 
     def send(self, payload: bytes) -> None:
         """Creates frame for payload and sends frame over socket.
@@ -60,11 +61,11 @@ class FramedSocket:
             ConnectionError: If peer closed connection after sending a length header.
         """
         header = self._recv_exact(self._header.size)
-        if not header:
+        if header is None:
             return None
         payload_length = self._header.unpack(header)[0]
         payload = self._recv_exact(payload_length)
-        if not payload:
+        if payload is None:
             raise ConnectionError("peer closed connection after header")
         return payload
 
@@ -92,12 +93,13 @@ class FramedSocket:
                     raise ConnectionError("peer closed connection mid-packet")
                 return None  # Peer closed connection
             data += chunk
-        if len(data) > num_bytes:
-            raise ValueError(f"expected payload of length {num_bytes}, got {len(data)}")
         return bytes(data)
 
     def close(self) -> None:
         """Shuts down and closes socket."""
+        if self.closed.is_set():
+            return
+        self.closed.set()
         try:
             self._sock.shutdown(socket.SHUT_RDWR)
         except OSError:
@@ -114,7 +116,6 @@ class Server:
         _port (int): Port number.
         _cmd_queue (queue.Queue[bytes]): Command queue.
         _telem_queue (queue.Queue[bytes]): Telemetry queue.
-        _callback (Callable[[bytes], Any]): Callback to invoke on message reception.
         _client_conn (FramedSocket | None): Client socket connection to send to and read from.
         _done (threading.Event): Event representing closure of server.
     """
@@ -140,8 +141,8 @@ class Server:
         self._port = port
         self._cmd_queue = cmd_queue
         self._telem_queue = telem_queue
-        self._client_conn: FramedSocket | None = None
         self._done = done
+        self._conn: FramedSocket | None = None
 
     def serve_forever(self) -> None:
         """Opens socket server and accepts client connections.
@@ -154,58 +155,75 @@ class Server:
             listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             listener.bind((self._host, self._port))
             listener.listen()
-            logger.info(f"Server listening on {self._host}:{self._port}")
             listener.settimeout(1.0)
-            while not self._done.is_set():
-                try:
-                    sock, addr = listener.accept()
+            logger.info(f"Server listening on {self._host}:{self._port}")
+            try:
+                while not self._done.is_set():
+                    try:
+                        sock, addr = listener.accept()
+                    except TimeoutError:
+                        continue
                     logger.info(f"Connected by {addr}")
-                    self._client_conn = FramedSocket(sock)
-                    threading.Thread(target=self.receive_loop).start()
-                    threading.Thread(target=self.send_loop).start()
-                except TimeoutError:
-                    pass
+                    self._replace_conn(FramedSocket(sock))
+            finally:
+                self._replace_conn(None)
 
-    def receive_loop(self) -> None:
+    def _replace_conn(self, new_conn: FramedSocket | None):
+        """Replaces old socket with new one, or None.
+
+        If the new socket is not None, send and receive loops are started for it.
+
+        Args:
+            new_conn: New socket.
+        """
+        old_conn = self._conn
+        self._conn = new_conn
+        if old_conn is not None:
+            old_conn.close()
+        if new_conn is not None:
+            threading.Thread(target=self._receive_loop, args=(new_conn,)).start()
+            threading.Thread(target=self._send_loop, args=(new_conn,)).start()
+
+    def _receive_loop(self, conn: FramedSocket) -> None:
         """Infinitely listens for new packets on client socket connection.
+
+        Args:
+            conn: Socket to read from.
 
         On packet reception, forwards packet to user-specified callback function.
         """
         try:
             while not self._done.is_set():
-                if not self._client_conn:
-                    raise ConnectionError("Receive loop started before client connection established")
-                msg = self._client_conn.recv()
-                if not msg:
+                msg = conn.recv()
+                if msg is None:
                     break
                 logger.debug(f"Server got msg {msg!r}")
                 self._telem_queue.put(msg)
-        except (ConnectionError, ValueError):
-            logger.exception("server receive loop error")
+        except (OSError, ValueError) as e:
+            logger.info(f"receive loop ended: {e}")
         finally:
-            if self._client_conn:
-                self._client_conn.close()
+            conn.close()
 
-    def send_loop(self) -> None:
+    def _send_loop(self, conn: FramedSocket) -> None:
         """Infinitely sends packets from command queue to client over socket.
+
+        Args:
+            conn: Socket to send to.
 
         Raises:
             ConnectionError: If method is called before client has connected.
         """
         try:
-            while not self._done.is_set():
-                if not self._client_conn:
-                    raise ConnectionError("Send loop started before client connection established")
+            while not self._done.is_set() and not conn.closed.is_set():
                 try:
-                    msg = self._cmd_queue.get(block=True, timeout=1.0)
-                    self._client_conn.send(msg)
+                    msg = self._cmd_queue.get(timeout=1.0)
                 except queue.Empty:
-                    pass
-        except ConnectionError:
-            logger.exception("server send loop error")
+                    continue
+                conn.send(msg)
+        except OSError as e:
+            logger.info(f"send loop ended: {e}")
         finally:
-            if self._client_conn:
-                self._client_conn.close()
+            conn.close()
 
 
 class Client:
@@ -253,7 +271,7 @@ class Client:
                 if not self._client_conn:
                     raise ConnectionError("Receive loop started before client connection established")
                 msg = self._client_conn.recv()
-                if not msg:
+                if msg is None:
                     break
                 logger.debug(f"Client got msg: {msg!r}")
                 self._callback(msg)

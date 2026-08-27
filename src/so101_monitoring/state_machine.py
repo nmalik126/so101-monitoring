@@ -26,7 +26,8 @@ class Machine:
     """Finite State Machine (FSM) for pick-and-place pipeline.
 
     Args:
-        cmd_queue (queue.Queue[bytes]): Command queue.
+        vision_cmd_queue (queue.Queue[bytes]): Command queue.
+        robot_cmd_queue (queue.Queue[bytes]): Command queue.
         event_queue (queue.Queue[Event]): Event queue.
 
     Attributes:
@@ -35,13 +36,15 @@ class Machine:
 
     def __init__(
             self,
-            cmd_queue: queue.Queue[bytes],
+            vision_cmd_queue: queue.Queue[bytes],
+            robot_cmd_queue: queue.Queue[bytes],
             event_queue: queue.Queue[Event],
             done: threading.Event
             ) -> None:
         """Initializes FSM state to PLANNING_GRASP (nominal default)."""
         self.state = State.PLANNING_GRASP
-        self.cmd_queue = cmd_queue
+        self.vision_cmd_queue = vision_cmd_queue
+        self.robot_cmd_queue = robot_cmd_queue
         self.event_queue = event_queue
         self.done = done
 
