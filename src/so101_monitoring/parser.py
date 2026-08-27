@@ -29,7 +29,7 @@ class Parser:
         logger.info("Parser telem loop stopped")
 
     def handle_message(self, message: bytes) -> None:
-        logger.info(f"Handling message of size {len(message)}")
+        logger.debug(f"Handling message of size {len(message)}")
 
         envelope = telemetry_pb2.Envelope()
         envelope.ParseFromString(message)
@@ -51,9 +51,22 @@ class Parser:
 
     def handle_grasp_candidate(self, grasp_candidate: telemetry_pb2.GraspCandidate) -> None:
         logger.info(f"Handling grasp candidate, id: {grasp_candidate.id}")
+        if grasp_candidate.success:
+            self.event_queue.put(Event.GRASP_PLAN_SUCCESS)
+        else:
+            self.event_queue.put(Event.GRASP_PLAN_FAILURE)
 
     def handle_pick_plan(self, pick_plan: telemetry_pb2.PickPlan) -> None:
         logger.info(f"Handling pick plan, id: {pick_plan.id}")
+        if pick_plan.success:
+            self.event_queue.put(Event.PICK_PLAN_SUCCESS)
+        else:
+            self.event_queue.put(Event.PICK_PLAN_FAILURE)
 
     def handle_pick_status(self, pick_status: telemetry_pb2.PickStatus) -> None:
         logger.info(f"Handling pick status, id: {pick_status.id}")
+        match pick_status.status:
+            case telemetry_pb2.PickStatus.Status.SUCCESS:
+                self.event_queue.put(Event.PICK_EXECUTE_SUCCESS)
+            case telemetry_pb2.PickStatus.Status.FAILURE:
+                self.event_queue.put(Event.PICK_EXECUTE_FAILURE)

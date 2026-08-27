@@ -55,7 +55,7 @@ def main() -> None:
 
     client = Client(HOST, int(PORT), parser.handle_message)
     client.start()
-    for _ in range(10):
+    for _ in range(1):
         grasp = gen_grasp(True)
         binary_data = grasp.SerializeToString()
         print(f"sending message of size {len(binary_data)}")
