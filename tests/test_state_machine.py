@@ -1,10 +1,15 @@
 from so101_monitoring.state_machine import State, Event, Machine
 import pytest
+import queue
+import threading
 
 
 @pytest.fixture
 def machine():
-    return Machine()
+    cmd_queue: queue.Queue[bytes] = queue.Queue()
+    event_queue: queue.Queue[Event] = queue.Queue()
+    done = threading.Event()
+    return Machine(cmd_queue, event_queue, done)
 
 
 def test_initial_state(machine):

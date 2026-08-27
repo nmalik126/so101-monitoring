@@ -3,6 +3,7 @@ import struct
 import threading
 from typing import Any, Callable
 import logging
+import queue
 
 logger = logging.getLogger(__name__)
 
@@ -111,24 +112,36 @@ class Server:
     Attributes:
         _host (str): IPv4 address.
         _port (int): Port number.
+        _cmd_queue (queue.Queue[bytes]): Command queue.
+        _telem_queue (queue.Queue[bytes]): Telemetry queue.
         _callback (Callable[[bytes], Any]): Callback to invoke on message reception.
         _client_conn (FramedSocket | None): Client socket connection to send to and read from.
         _done (threading.Event): Event representing closure of server.
     """
 
-    def __init__(self, host: str, port: int, callback: Callable[[bytes], Any]) -> None:
-        """Initializes socket address and callback.
+    def __init__(
+            self,
+            host: str,
+            port: int,
+            cmd_queue: queue.Queue[bytes],
+            telem_queue: queue.Queue[bytes],
+            done: threading.Event
+            ) -> None:
+        """Initializes socket address and queues to read/write.
 
         Args:
             host: IPv4 address.
             port: Port number.
-            callback: Callback to invoke on message reception.
+            cmd_queue: Command queue.
+            telem_queue: Telemetry queue.
+            done: Event representing closure of server.
         """
         self._host = host
         self._port = port
-        self._callback = callback
+        self._cmd_queue = cmd_queue
+        self._telem_queue = telem_queue
         self._client_conn: FramedSocket | None = None
-        self._done = threading.Event()
+        self._done = done
 
     def serve_forever(self) -> None:
         """Opens socket server and accepts client connections.
@@ -148,8 +161,8 @@ class Server:
                     sock, addr = listener.accept()
                     logger.info(f"Connected by {addr}")
                     self._client_conn = FramedSocket(sock)
-                    rx_thread = threading.Thread(target=self.receive_loop)
-                    rx_thread.start()
+                    threading.Thread(target=self.receive_loop).start()
+                    threading.Thread(target=self.send_loop).start()
                 except TimeoutError:
                     pass
 
@@ -159,39 +172,40 @@ class Server:
         On packet reception, forwards packet to user-specified callback function.
         """
         try:
-            while True:
+            while not self._done.is_set():
                 if not self._client_conn:
                     raise ConnectionError("Receive loop started before client connection established")
                 msg = self._client_conn.recv()
                 if not msg:
                     break
                 logger.debug(f"Server got msg {msg!r}")
-                self._callback(msg)
+                self._telem_queue.put(msg)
         except (ConnectionError, ValueError):
             logger.exception("server receive loop error")
         finally:
             if self._client_conn:
                 self._client_conn.close()
 
-    def send(self, msg: bytes) -> None:
-        """Sends packet to client over socket.
-
-        Args:
-            msg: Binary payload to send.
+    def send_loop(self) -> None:
+        """Infinitely sends packets from command queue to client over socket.
 
         Raises:
             ConnectionError: If method is called before client has connected.
         """
-        if not self._client_conn:
-            raise ConnectionError("attempted send before peer connected")
-        self._client_conn.send(msg)
-
-    def stop(self) -> None:
-        """Closes the client and server sockets."""
-        self._done.set()
-        if self._client_conn:
-            self._client_conn.close()
-        logger.info("Server stopped")
+        try:
+            while not self._done.is_set():
+                if not self._client_conn:
+                    raise ConnectionError("Send loop started before client connection established")
+                try:
+                    msg = self._cmd_queue.get(block=True, timeout=1.0)
+                    self._client_conn.send(msg)
+                except queue.Empty:
+                    pass
+        except ConnectionError:
+            logger.exception("server send loop error")
+        finally:
+            if self._client_conn:
+                self._client_conn.close()
 
 
 class Client:

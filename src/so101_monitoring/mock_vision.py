@@ -5,7 +5,10 @@ from so101_monitoring.socket_manager import Client
 from so101_monitoring.logging_config import configure_logging
 import os
 from dotenv import load_dotenv
-from so101_monitoring.parser import handle_message
+from so101_monitoring.parser import Parser
+from queue import Queue
+from so101_monitoring.state_machine import Event
+import threading
 
 
 def gen_grasp(success: bool) -> telemetry_pb2.Envelope:
@@ -38,14 +41,19 @@ HOST = os.environ.get("HOST")
 PORT = os.environ.get("VISION_PORT")
 
 
-def main():
+def main() -> None:
     configure_logging()
 
     if (HOST is None) or (PORT is None):
         print("could not load address env vars")
         return
 
-    client = Client(HOST, int(PORT), handle_message)
+    telem_queue: Queue[bytes] = Queue()
+    event_queue: Queue[Event] = Queue()
+    done = threading.Event()
+    parser = Parser(telem_queue, event_queue, done)
+
+    client = Client(HOST, int(PORT), parser.handle_message)
     client.start()
     for _ in range(10):
         grasp = gen_grasp(True)
