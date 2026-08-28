@@ -1,3 +1,4 @@
 #!/bin/bash
 
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest -v -p pytest_cov --cov -o log_cli=true --log-cli-level=INFO
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest -v -p pytest_cov --cov
+# PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest -v -p pytest_cov --cov -o log_cli=true --log-cli-level=INFO
